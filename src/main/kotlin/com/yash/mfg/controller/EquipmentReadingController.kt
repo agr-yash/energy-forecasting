@@ -1,5 +1,6 @@
 package com.yash.mfg.controller
 
+import com.yash.mfg.dto.ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
 import com.yash.mfg.model.EquipmentReading
 import com.yash.mfg.service.EquipmentReadingService
 import org.springframework.http.ResponseEntity
@@ -8,6 +9,20 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/equipment-readings")
 class EquipmentReadingController(private val equipmentReadingService: EquipmentReadingService) {
+
+
+
+    @PostMapping
+    fun getAllEquipmentReadingsByDateRangeAndProcessId(
+        @RequestBody processEnergyConsumptionByProcessIdAndDateRangeRequestDTO: ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
+    ): ResponseEntity<List<EquipmentReading>> {
+        val equipmentReadings = equipmentReadingService.getEquipmentReadingsByProcessIdAndDateRange(
+            processEnergyConsumptionByProcessIdAndDateRangeRequestDTO.processId,
+            processEnergyConsumptionByProcessIdAndDateRangeRequestDTO.startDate,
+            processEnergyConsumptionByProcessIdAndDateRangeRequestDTO.endDate
+        )
+        return ResponseEntity.ok(equipmentReadings)
+    }
 
     @GetMapping
     fun getAllEquipmentReadings(): List<EquipmentReading> = equipmentReadingService.getAllEquipmentReadings()

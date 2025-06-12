@@ -8,6 +8,7 @@ data class Process(
     @Id
     val processId: String = System.nanoTime().toString(),
     val processName: String,
-    val plantId: String
+    val plantId: String,
+    val renewableEnergyPercentage: List<Double>? = null,
 )
 

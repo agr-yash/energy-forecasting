@@ -1,5 +1,6 @@
 package com.yash.mfg.controller
 
+import com.yash.mfg.dto.MonthlyPlantEnergyResponseDTO
 import com.yash.mfg.dto.TotalEnergyConsumedByDateRangeRequestDTO
 import com.yash.mfg.model.Plant
 import com.yash.mfg.model.Process
@@ -31,4 +32,11 @@ class PlantController(private val plantService: PlantService, private val proces
     @GetMapping("/{id}")
     fun getProcessesByPlantId(@PathVariable id: String): List<Process> =
         processService.getProcessesByPlantId(id)
+
+    @GetMapping("/monthly/{id}")
+    fun getMonthlyEnergyConsumptionByPlantId(@PathVariable id: String): ResponseEntity<MonthlyPlantEnergyResponseDTO> {
+        val response = processService.getMonthlyEnergyConsumptionGroupedByProcess(id)
+        return ResponseEntity.ok(response)
+    }
+    
 }

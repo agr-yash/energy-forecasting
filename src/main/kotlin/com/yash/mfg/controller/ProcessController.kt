@@ -1,5 +1,6 @@
 package com.yash.mfg.controller
 
+import com.yash.mfg.dto.EnergyAndEmissionsResponseDTO
 import com.yash.mfg.dto.ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
 import com.yash.mfg.dto.TotalEnergyConsumedByDateRangeRequestDTO
 import com.yash.mfg.model.Process
@@ -15,13 +16,14 @@ class ProcessController(private val processService: ProcessService) {
     fun getAllProcesses(): List<Process> = processService.getAllProcesses()
 
     @PostMapping
-    fun getEnergyConsumedByProcessIdAndDateRange(
-        @RequestBody processEnergyConsumptionByProcessIdAndDateRangeRequestDTO: ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
-    ): Double {
-        return processService.getTotalEnergyConsumedByProcessIdAndDateRange(
-            processEnergyConsumptionByProcessIdAndDateRangeRequestDTO.processId,
-            processEnergyConsumptionByProcessIdAndDateRangeRequestDTO.startDate,
-            processEnergyConsumptionByProcessIdAndDateRangeRequestDTO.endDate
+    fun getEnergyAndEmissionsByProcessIdAndDateRange(
+        @RequestBody request: ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
+    ): ResponseEntity<EnergyAndEmissionsResponseDTO> {
+        val result = processService.getEnergyAndEmissionsByProcessIdAndDateRange(
+            request.processId,
+            request.startDate,
+            request.endDate
         )
+        return ResponseEntity.ok(result)
     }
 }

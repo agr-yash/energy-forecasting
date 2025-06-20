@@ -7,7 +7,11 @@ import java.time.LocalDate
 
 @Service
 class EquipmentReadingService(private val equipmentReadingRepository: EquipmentReadingRepository) {
-    fun getAllEquipmentReadings(): List<EquipmentReading> = equipmentReadingRepository.findAll()
+    fun getAllEquipmentReadingsByDateRange(startDate: LocalDate, endDate: LocalDate): List<EquipmentReading> {
+        return equipmentReadingRepository.findByDateBetweenAsString(startDate.toString(), endDate.toString())
+    }
+
+
 
     fun getEquipmentReadingsByProcessIdAndDateRange(
         processId: String,

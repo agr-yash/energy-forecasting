@@ -1,5 +1,6 @@
 package com.yash.mfg.controller
 
+import com.yash.mfg.dto.DateRangeRequestDTO
 import com.yash.mfg.dto.ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
 import com.yash.mfg.model.EquipmentReading
 import com.yash.mfg.service.EquipmentReadingService
@@ -24,6 +25,11 @@ class EquipmentReadingController(private val equipmentReadingService: EquipmentR
         return ResponseEntity.ok(equipmentReadings)
     }
 
-    @GetMapping
-    fun getAllEquipmentReadings(): List<EquipmentReading> = equipmentReadingService.getAllEquipmentReadings()
+    @PostMapping("/with-date")
+    fun getAllEquipmentReadings(
+        @RequestBody dateRangeRequestDTO: DateRangeRequestDTO
+    ): List<EquipmentReading> = equipmentReadingService.getAllEquipmentReadingsByDateRange(
+        dateRangeRequestDTO.startDate,
+        dateRangeRequestDTO.endDate
+    )
 }

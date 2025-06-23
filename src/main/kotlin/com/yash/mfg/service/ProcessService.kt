@@ -85,10 +85,12 @@ class ProcessService(private val processRepository: ProcessRepository, private v
         startDate: LocalDate,
         endDate: LocalDate
     ): Double {
+        val newEndDate = LocalDate.of(2025, 6, 9)
+        val newStartDate = newEndDate.minusDays(endDate.toEpochDay() - startDate.toEpochDay())
         return this.getTotalEnergyConsumedByPlantIdAndDateRange(
             plantId = plantId,
-            startDate = startDate,
-            endDate = endDate
+            startDate = newStartDate,
+            endDate = newEndDate
         ) *1.047
     }
 }

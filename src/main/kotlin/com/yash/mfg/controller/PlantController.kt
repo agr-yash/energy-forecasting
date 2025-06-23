@@ -41,6 +41,14 @@ class PlantController(private val plantService: PlantService, private val proces
 
 
     //Forecasting APIs
-
-
+    @PostMapping("/forecasted")
+    fun getEnergyByPlantIdAndDateRangeForecasted(
+        @RequestBody totalEnergyConsumedByDateRangeRequestDTO: TotalEnergyConsumedByDateRangeRequestDTO
+    ): Double {
+        return processService.getTotalEnergyConsumedByPlantIdAndDateRangeForecasted(
+            totalEnergyConsumedByDateRangeRequestDTO.plantId,
+            totalEnergyConsumedByDateRangeRequestDTO.startDate,
+            totalEnergyConsumedByDateRangeRequestDTO.endDate
+        )
+    }
 }

@@ -79,4 +79,16 @@ class ProcessService(private val processRepository: ProcessRepository, private v
         )
     }
 
+    //FORECASTING
+    fun getTotalEnergyConsumedByPlantIdAndDateRangeForecasted(
+        plantId: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): Double {
+        return this.getTotalEnergyConsumedByPlantIdAndDateRange(
+            plantId = plantId,
+            startDate = startDate,
+            endDate = endDate
+        ) *1.047
+    }
 }

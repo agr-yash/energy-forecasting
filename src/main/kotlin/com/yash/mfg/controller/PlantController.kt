@@ -38,5 +38,9 @@ class PlantController(private val plantService: PlantService, private val proces
         val response = processService.getMonthlyEnergyConsumptionGroupedByProcess(id)
         return ResponseEntity.ok(response)
     }
-    
+
+
+    //Forecasting APIs
+
+
 }

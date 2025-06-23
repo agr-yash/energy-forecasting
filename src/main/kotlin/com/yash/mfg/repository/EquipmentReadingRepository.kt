@@ -8,8 +8,8 @@ import java.time.LocalDate
 
 @Repository
 interface EquipmentReadingRepository : MongoRepository<EquipmentReading, String> {
-    fun findByProcessId(processId: String): List<EquipmentReading>
 
+    fun findByProcessId(processId: String): List<EquipmentReading>
 
     @Query("{ 'date': { \$gte: ?0, \$lte: ?1 } }")
     fun findByDateBetweenAsString(startDate: String, endDate: String): List<EquipmentReading>

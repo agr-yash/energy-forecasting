@@ -26,4 +26,7 @@ class ProcessController(private val processService: ProcessService) {
         )
         return ResponseEntity.ok(result)
     }
+
+    //Forecasting APIs
+
 }

@@ -2,16 +2,20 @@ package com.yash.mfg.service
 
 import com.yash.mfg.dto.EnergyAndEmissionsResponseDTO
 import com.yash.mfg.dto.MonthlyPlantEnergyResponseDTO
+import com.yash.mfg.llm.ForecastLLMService
 import com.yash.mfg.model.Process
 import com.yash.mfg.repository.EquipmentReadingRepository
 import com.yash.mfg.repository.ProcessRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.random.Random
 
 @Service
 class ProcessService(private val processRepository: ProcessRepository, private val equipmentReadingRepository: EquipmentReadingRepository) {
+
+    @Autowired
+    lateinit var forecastLLMService: ForecastLLMService
 
     fun getAllProcesses(): List<Process> = processRepository.findAll()
 
@@ -78,6 +82,37 @@ class ProcessService(private val processRepository: ProcessRepository, private v
             plantMonthlyTotal = plantMonthlyTotal
         )
     }
+    // Average calculations
+    fun getAverageCO2ByPlantIdAndDateRange(
+        plantId: String,
+        start: LocalDate,
+        end: LocalDate
+    ): Double {
+        val processIds = processRepository.findByPlantId(plantId).map { it.processId }
+        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
+        return readings.map { it.co2EmissionsKgAverage }.average()
+    }
+
+    fun getAverageTemperatureByPlantIdAndDateRange(
+        plantId: String,
+        start: LocalDate,
+        end: LocalDate
+    ): Double {
+        val processIds = processRepository.findByPlantId(plantId).map { it.processId }
+        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
+        return readings.map { it.temperatureAverage }.average()
+    }
+
+    fun getAverageHumidityByPlantIdAndDateRange(
+        plantId: String,
+        start: LocalDate,
+        end: LocalDate
+    ): Double {
+        val processIds = processRepository.findByPlantId(plantId).map { it.processId }
+        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
+        return readings.map { it.humidityPercentAverage }.average()
+    }
+
 
     //FORECASTING
     fun getTotalEnergyConsumedByPlantIdAndDateRangeForecasted(
@@ -85,12 +120,32 @@ class ProcessService(private val processRepository: ProcessRepository, private v
         startDate: LocalDate,
         endDate: LocalDate
     ): Double {
-        val newEndDate = LocalDate.of(2025, 6, 9)
-        val newStartDate = newEndDate.minusDays(endDate.toEpochDay() - startDate.toEpochDay())
-        return this.getTotalEnergyConsumedByPlantIdAndDateRange(
+        // 1. Adjust date range to fixed forecast period
+        val newEndDate = LocalDate.of(2025, 6, 18)
+        val days = endDate.toEpochDay() - startDate.toEpochDay()
+        val newStartDate = newEndDate.minusDays(days)
+
+        // 2. Get current actual values
+        val energy = getTotalEnergyConsumedByPlantIdAndDateRange(
             plantId = plantId,
             startDate = newStartDate,
             endDate = newEndDate
-        ) *1.047
+        )
+
+        val avgCo2 = getAverageCO2ByPlantIdAndDateRange(plantId, newStartDate, newEndDate)
+        val avgTemp = getAverageTemperatureByPlantIdAndDateRange(plantId, newStartDate, newEndDate)
+        val avgHumidity = getAverageHumidityByPlantIdAndDateRange(plantId, newStartDate, newEndDate)
+
+        // 3. Forecast values using LLM
+        val forecast = forecastLLMService.getForecast(
+            energy = energy,
+            co2 = avgCo2,
+            temp = avgTemp,
+            humidity = avgHumidity
+        )
+        // 4. Return forecasted energy
+        return forecast["energyConsumedKWh"]
+            ?: throw RuntimeException("Forecast result missing 'energyConsumedKWh'")
     }
+
 }

@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ProcessRepository : MongoRepository<Process, String> {
     fun findByPlantId(plantId: String): List<Process>
+
 }

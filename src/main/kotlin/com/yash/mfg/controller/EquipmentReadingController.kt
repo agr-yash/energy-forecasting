@@ -44,7 +44,6 @@ class EquipmentReadingController(private val equipmentReadingService: EquipmentR
         return ResponseEntity.ok(equipmentReadings)
     }
 
-
     @PostMapping("/with-date/forecasted")
     fun getAllEquipmentReadingsForecasted(
         @RequestBody dateRangeRequestDTO: DateRangeRequestDTO

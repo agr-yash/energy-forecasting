@@ -14,4 +14,6 @@ interface EquipmentReadingRepository : MongoRepository<EquipmentReading, String>
     @Query("{ 'date': { \$gte: ?0, \$lte: ?1 } }")
     fun findByDateBetweenAsString(startDate: String, endDate: String): List<EquipmentReading>
 
+    fun findByProcessIdInAndDateBetween(processIds: List<String>, startDate: LocalDate, endDate: LocalDate): List<EquipmentReading>
+
 }

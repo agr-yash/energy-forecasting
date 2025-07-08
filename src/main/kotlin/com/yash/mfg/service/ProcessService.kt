@@ -148,4 +148,44 @@ class ProcessService(private val processRepository: ProcessRepository, private v
             ?: throw RuntimeException("Forecast result missing 'energyConsumedKWh'")
     }
 
+    //Process-specific forecasting
+    fun getEnergyAndEmissionsByProcessIdAndDateRangeForecasted(
+        processId: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): EnergyAndEmissionsResponseDTO {
+        // 1. Adjust date range to fixed forecast period
+        val newEndDate = LocalDate.of(2025, 6, 18)
+        val days = endDate.toEpochDay() - startDate.toEpochDay()
+        val newStartDate = newEndDate.minusDays(days)
+
+        // 2. Get current actual values
+        val readings = equipmentReadingRepository.findByProcessId(processId)
+            .filter { it.date in newStartDate..newEndDate }
+
+        if (readings.isEmpty()) {
+            throw RuntimeException("No readings found for process $processId in the given date range")
+        }
+
+        val energy = readings.sumOf { it.energyConsumedKWh }
+        val avgCo2 = readings.sumOf { it.co2EmissionsKgAverage }
+        val avgTemp = readings.map { it.temperatureAverage }.average()
+        val avgHumidity = readings.map { it.humidityPercentAverage }.average()
+
+        // 3. Forecast values using LLM
+        val forecast = forecastLLMService.getForecast(
+            energy = energy,
+            co2 = avgCo2,
+            temp = avgTemp,
+            humidity = avgHumidity
+        )
+
+        // 4. Return forecasted energy and emissions
+        return EnergyAndEmissionsResponseDTO(
+            totalEnergyConsumedKWh = forecast["energyConsumedKWh"]
+                ?: throw RuntimeException("Forecast result missing 'energyConsumedKWh'"),
+            totalCo2EmissionsKg = forecast["co2EmissionsKgAverage"]
+                ?: throw RuntimeException("Forecast result missing 'co2EmissionsKgAverage'")
+        )
+    }
 }

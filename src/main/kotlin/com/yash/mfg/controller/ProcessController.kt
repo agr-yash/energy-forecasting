@@ -28,5 +28,16 @@ class ProcessController(private val processService: ProcessService) {
     }
 
     //Forecasting APIs
+    @PostMapping("/forecasted")
+    fun getEnergyAndEmissionsByProcessIdAndDateRangeForecasted(
+        @RequestBody request: ProcessEnergyConsumptionByProcessIdAndDateRangeRequestDTO
+    ): ResponseEntity<EnergyAndEmissionsResponseDTO> {
+        val result = processService.getEnergyAndEmissionsByProcessIdAndDateRangeForecasted(
+            request.processId,
+            request.startDate,
+            request.endDate
+        )
+        return ResponseEntity.ok(result)
+    }
 
 }

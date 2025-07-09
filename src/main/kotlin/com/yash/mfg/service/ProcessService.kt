@@ -90,7 +90,7 @@ class ProcessService(private val processRepository: ProcessRepository, private v
     ): Double {
         val processIds = processRepository.findByPlantId(plantId).map { it.processId }
         val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
-        return readings.map { it.co2EmissionsKgAverage }.average()
+        return readings.sumOf { it.co2EmissionsKgAverage }
     }
 
     fun getAverageTemperatureByPlantIdAndDateRange(
@@ -115,6 +115,45 @@ class ProcessService(private val processRepository: ProcessRepository, private v
 
 
     //FORECASTING
+
+    fun getEnergyAndCo2ByPlantIdAndDateRangeForecasted(
+        plantId: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): EnergyAndEmissionsResponseDTO {
+        // 1. Adjust date range to fixed forecast period
+        val newEndDate = LocalDate.of(2025, 6, 18)
+        val days = endDate.toEpochDay() - startDate.toEpochDay()
+        val newStartDate = newEndDate.minusDays(days)
+
+        // 2. Get current actual values
+        val energy = getTotalEnergyConsumedByPlantIdAndDateRange(
+            plantId = plantId,
+            startDate = newStartDate,
+            endDate = newEndDate
+        )
+
+        val avgCo2 = getAverageCO2ByPlantIdAndDateRange(plantId, newStartDate, newEndDate)
+        val avgTemp = getAverageTemperatureByPlantIdAndDateRange(plantId, newStartDate, newEndDate)
+        val avgHumidity = getAverageHumidityByPlantIdAndDateRange(plantId, newStartDate, newEndDate)
+
+        // 3. Forecast values using LLM
+        val forecast = forecastLLMService.getForecast(
+            energy = energy,
+            co2 = avgCo2,
+            temp = avgTemp,
+            humidity = avgHumidity
+        )
+
+        // 4. Return forecasted energy and emissions
+        return EnergyAndEmissionsResponseDTO(
+            totalEnergyConsumedKWh = forecast["energyConsumedKWh"]
+                ?: throw RuntimeException("Forecast result missing 'energyConsumedKWh'"),
+            totalCo2EmissionsKg = forecast["co2EmissionsKgAverage"]
+                ?: throw RuntimeException("Forecast result missing 'co2EmissionsKgAverage'")
+        )
+    }
+
     fun getTotalEnergyConsumedByPlantIdAndDateRangeForecasted(
         plantId: String,
         startDate: LocalDate,

@@ -94,8 +94,8 @@ class ForecastLLMService(
     - renewableEnergyChangePercent indicates the % increase in renewable energy usage. For example, 20 means 20% more renewable energy is used, which should reduce CO2 emissions.
 
     Instructions:
-    - Adjust **energyConsumedKWh** based on volumeChangePercent. A decrease in production volume should proportionally reduce energy.
-    - Adjust **co2EmissionsKg** based on renewableEnergyChangePercent. More renewables lead to proportionally less CO2 emissions.
+    - Adjust **energyConsumedKWh** based on volumeChangePercent. A decrease in production volume should proportionally reduce energy. An increase in production volume should proportionally increase energy.
+    - Adjust **co2EmissionsKg** based on renewableEnergyChangePercent. More renewables lead to proportionally less CO2 emissions. Less renewables lead to more CO2 emissions.
     - Maintain realistic values and round to two decimal places.
     - Return the forecast strictly as a JSON object with keys:
       - totalEnergyConsumedKWh

@@ -89,7 +89,11 @@ class ProcessService(private val processRepository: ProcessRepository, private v
         end: LocalDate
     ): Double {
         val processIds = processRepository.findByPlantId(plantId).map { it.processId }
-        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
+        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(
+            processIds,
+            start.toString(),
+            end.toString()
+        )
         return readings.sumOf { it.co2EmissionsKgAverage }
     }
 
@@ -99,7 +103,11 @@ class ProcessService(private val processRepository: ProcessRepository, private v
         end: LocalDate
     ): Double {
         val processIds = processRepository.findByPlantId(plantId).map { it.processId }
-        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
+        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(
+            processIds,
+            start.toString(),
+            end.toString()
+        )
         return readings.map { it.temperatureAverage }.average()
     }
 
@@ -109,7 +117,11 @@ class ProcessService(private val processRepository: ProcessRepository, private v
         end: LocalDate
     ): Double {
         val processIds = processRepository.findByPlantId(plantId).map { it.processId }
-        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(processIds, start, end)
+        val readings = equipmentReadingRepository.findByProcessIdInAndDateBetween(
+            processIds,
+            start.toString(),
+            end.toString()
+        )
         return readings.map { it.humidityPercentAverage }.average()
     }
 

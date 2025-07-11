@@ -95,7 +95,7 @@ class ForecastLLMService(
 
     Instructions:
     - Adjust **energyConsumedKWh** based on volumeChangePercent. A decrease in production volume should proportionally reduce energy. An increase in production volume should proportionally increase energy.
-    - Adjust **co2EmissionsKg** based on renewableEnergyChangePercent. More renewables lead to proportionally less CO2 emissions. Less renewables lead to more CO2 emissions.
+    - Adjust **co2EmissionsKg** based on renewableEnergyChangePercent and volumeChangePercent. More renewables lead to proportionally less CO2 emissions. Less renewables lead to more CO2 emissions. Increase in volumeChangePercent should increase CO2 emissions proportionally, while decrease should reduce CO2 emissions proportionally.
     - Maintain realistic values and round to two decimal places.
     - Return the forecast strictly as a JSON object with keys:
       - totalEnergyConsumedKWh
